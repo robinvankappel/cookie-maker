@@ -11,8 +11,8 @@ import subprocess
 import bz2
 from itertools import islice
 
-KEY_MIN_INDEX = 0#for testing purpose.
-KEY_MAX_INDEX = 1000#for testing purpose.
+KEY_MIN_INDEX = 0#for testing purpose; default 0
+KEY_MAX_INDEX = 3000#for testing purpose; default None
 WRITE_JSON = False
 BATCHING_PIO_RESULTS = True
 
@@ -121,7 +121,7 @@ def get_results(path_app):
                         new_pio_process.terminate()
                         time.sleep(2)  # wait for parallel processes to find PID.
                         #add subkeys to output file:
-                        util.add_subkeys_to_output(subkeys,pio_results_output)
+                        util.add_subkeys_and_metadata_to_output(subkeys,pio_results_output,POT_TYPE,BET_SIZE)
                         if MAKE_JSON == True:
                             print util.getTime(start, flop) + 'making json content'
                             json_content = make_json(start, flop, subkeys, pio_results_output)

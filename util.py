@@ -156,7 +156,6 @@ class Flop():
     """
     Make object containing filename and starttime
     """
-
     def __init__(self, name, dir, path):
         self.name = name
         self.dir = dir
@@ -170,7 +169,6 @@ def get_pokercards():
             card = value+suit
             cards.append(card)
     return cards
-
 
 def convert_situation_to_filename(situation):
     situation_conv = situation.replace(':', '_')
@@ -350,13 +348,19 @@ def get_default_line(v_line):
             line += action + ':'
     return line
 
-def add_subkeys_to_output(subkeys,pio_results_output):
+def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,pot_type,bet_size):
     #append keys to existing file
     content = '\n' + 'KEYS START' + '\n'
     with open(pio_results_output, 'a') as f:
+        #add keys
         for subkey in subkeys:
             content += subkey + '\n'
         content += 'KEYS END' + '\n'
+        #add meta data
+        content += 'POT_TYPE:'+ '\n'
+        content += pot_type + '\n'
+        content += 'BET_SIZE:' + '\n'
+        content += str(bet_size) + '\n'
         f.write(content)
     return
 
