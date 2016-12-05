@@ -12,7 +12,7 @@ import bz2
 from itertools import islice
 
 KEY_MIN_INDEX = 0#for testing purpose; default 0
-KEY_MAX_INDEX = 3000#for testing purpose; default None
+KEY_MAX_INDEX = 9999999999#for testing purpose; default None
 WRITE_JSON = False
 BATCHING_PIO_RESULTS = True
 
@@ -24,7 +24,7 @@ BATCHING_PIO_RESULTS = True
 
 
 #Global variables
-PIO_DIR = 'C:\\Users\\J." "Moene\\Desktop\\pio" "edge\\'
+PIO_DIR = 'C:\\Users\\robinvankappel\\Desktop\\pio\\'
 PIO_NAME = "PioSOLVER-edge19.exe"
 PIO_LOC = PIO_DIR + PIO_NAME
 URL_DB_SERVER = 'http://104.155.43.38/app_dev.php/'

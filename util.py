@@ -7,13 +7,11 @@ import sys
 import json
 import bz2
 
+#todo: corresponds to pot type --> make settings file (git ignore) which include these
+###GLOBAL VARIABLES###
 POTSIZEMAX = 2000
 POTSIZESTART = 200 #if POT_TYPE = 3
 #POTSIZESTART = 50 #if POT_TYPE = s
-
-# import numpy as np
-# from scipy.stats import norm
-# from sklearn.neighbors import KernelDensity
 
 def kill_all_processes(process):
     for proc in psutil.process_iter():
