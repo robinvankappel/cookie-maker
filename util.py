@@ -82,9 +82,11 @@ def FileWriteIsDone(path, timeout=1999):
     sys.stdout.flush()
     if (timeout <= 0):
         return False
+    # todo: read line by line, not all at once
     #a = win32gui.FindWindow(None, 'C:\Windows\system32\cmd.exe')
     #print(a, os.path.isfile(path))
     #check whether file exists and is not empty
+    # todo: read line by line, not all at once
     if (os.path.isfile(path) and ('END' in open(path).read())):
         return True;
     else:
@@ -99,6 +101,7 @@ def FileWriteIsDone2(path, timeout=1999):
     #a = win32gui.FindWindow(None, 'C:\Windows\system32\cmd.exe')
     #print(a, os.path.isfile(path))
     #check whether file exists and is not empty
+    #todo: read line by line, not all at once
     if (os.path.isfile(path) and ('free_tree ok!' in open(path).read())):
         return True;
     else:

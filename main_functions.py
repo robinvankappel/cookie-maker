@@ -330,7 +330,7 @@ def build_batch_results_per_key(pio_results_file,helpers_dir):
     with open(batch_file, 'w+') as f:
         content = 'set root=C:\Users\Robin\Documents\Pio' + '\n'
         content += 'cd %root%' + '\n'
-        content += 'start C:\Users\Robin\Documents\Pio\PioSOLVER-edge19.exe "' + pio_results_file + '"\n'
+        content += 'start /min C:\Users\Robin\Documents\Pio\PioSOLVER-edge19.exe "' + pio_results_file + '"\n'
         print 'Script for getting results of Pio'
         print content
         print '\n'
@@ -344,7 +344,7 @@ def build_batch_results_all_keys(flop,pio_results_file,helpers_dir):
     with open(batch_file, 'w+') as f:
         content = 'set root=' + PIO_DIR + '\n'
         content += 'cd %root%' + '\n'
-        content += 'start ' + PIO_LOC + ' "' + pio_results_file + '"\n'
+        content += 'start /min ' + PIO_LOC + ' "' + pio_results_file + '"\n'
         # print 'Script for getting results of Pio'
         # print content
         # print '\n'
@@ -358,7 +358,7 @@ def build_batch_to_get_floplines(flop,pio_lines_file,helpers_dir):
     with open(batch_file, 'w+') as f:
         content = 'set root=' + PIO_DIR + '\n'
         content += 'cd %root%' + '\n'
-        content += 'start ' + PIO_LOC + ' "' + pio_lines_file + '"\n'
+        content += 'start /min ' + PIO_LOC + ' "' + pio_lines_file + '"\n'
         # print 'Script for getting results of Pio'
         # print content
         # print '\n'
