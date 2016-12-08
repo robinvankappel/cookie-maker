@@ -14,15 +14,15 @@ path_app = os.path.abspath(os.path.dirname(sys.argv[0]))
 ### PROCESS 1:
 def define_global_vars_1():
     # Locations
-    FLOP_FOLDER = 'INPUT_flops\\srp'  # not used when FLOP_LOCAL_INPUT_FOLDER = False
+    FLOP_FOLDER = 'INPUT_flops'  # not used when FLOP_LOCAL_INPUT_FOLDER = False
     RESULTS_FOLDER = 'OUTPUT_results' # not used when FLOP_LOCAL_RESULTS_FOLDER = False
     MAIN_FOLDER = 'generated_scripts'
-    FLOP_DIR = 'D:\\solved_trees_1\\'  # not used when FLOP_LOCAL_INPUT_FOLDER = True
+    FLOP_DIR = 'D:\\solved_trees_3B\\'  # not used when FLOP_LOCAL_INPUT_FOLDER = True
     RESULTS_DIR = 'D:\\solved_trees_3B\\pio_results\\'  # not used when FLOP_LOCAL_RESULTS_FOLDER = True
     JSON_DIR = 'C:\\jsons_ready_for_db\\'  # folder where jsons are saved
     PROCESSED_FLOPS_DIR = 'C:\\processed_trees\\'
     # Settings for solving:
-    STEP_SIZE = 50000  # number of keys retrieved in one Pio command
+    STEP_SIZE = 25000  # number of keys retrieved in one Pio command
     FLOP_LOCAL_INPUT_FOLDER = True  # if true local disk is used for flop inputs
     FLOP_LOCAL_RESULTS_FOLDER = True  # if true local disk is used for pio output results files
     MOVE_RESULTS = False  # copy results from local folder to external folder

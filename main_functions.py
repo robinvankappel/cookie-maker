@@ -117,7 +117,7 @@ def get_results(path_app):
                 elif BATCHING_PIO_RESULTS == True:
                     pio_results_output, new_pio_process = get_pio_results(subkeys, subset_end_index, flop, helpers_dir,
                                                                            output_dir, start)
-                    if (util.FileWriteIsDone2(pio_results_output)):
+                    if (util.FileWriteIsDone(pio_results_output)):
                         new_pio_process.terminate()
                         time.sleep(2)  # wait for parallel processes to find PID.
                         #add subkeys to output file:
@@ -298,6 +298,7 @@ def get_all_keys(flop,lines_dir,helpers_dir,start,cards):
     if (util.FileWriteIsDone(line_file)):
         if os.stat(line_file).st_size < 10000:
             print util.getTime(start,flop) + 'failed getting lines (line file < 10KB)'
+            exit(1)
         print util.getTime(start, flop) + 'getting keys from lines...'
         keys = util.get_keys_from_file(line_file, flop, cards)
 
@@ -473,7 +474,7 @@ def build_script_to_generate_results_all_keys_one_file(keys, value, flop, helper
         for key in keys:
             if os.path.isfile(output_file):
                 os.remove(output_file)
-            content += 'stdoutredi_append ' + '"' + output_file + '"' + '\n'
+            #content += 'stdoutredi_append ' + '"' + output_file + '"' + '\n'
             content += 'show_strategy_pp ' + key + '\n'
             content += 'show_children ' + key + '\n'
         #print content

@@ -77,23 +77,23 @@ def get_flops(flop_dir):
             flops.append(Flop(name,flop_dir,path))
     return flops
 
-def FileWriteIsDone(path, timeout=1999):
+def FileWriteIsDone(path, filesize=None, timeout=1999):
     sys.stdout.write('\r'+str(timeout))
     sys.stdout.flush()
     if (timeout <= 0):
         return False
-    # todo: read line by line, not all at once
-    #a = win32gui.FindWindow(None, 'C:\Windows\system32\cmd.exe')
-    #print(a, os.path.isfile(path))
-    #check whether file exists and is not empty
-    # todo: read line by line, not all at once
-    if (os.path.isfile(path) and ('END' in open(path).read())):
-        return True;
+    if (os.path.isfile(path)):
+        filesize_new = os.stat(path).st_size
+        if (filesize_new == filesize) and (filesize > 10000):
+            return True;
+        else:
+            time.sleep(1)
+            return FileWriteIsDone(path, filesize_new, timeout - 1)
     else:
         time.sleep(1)
-        return FileWriteIsDone(path,timeout - 1)
+        return FileWriteIsDone(path,filesize,timeout - 1)
 
-def FileWriteIsDone2(path, timeout=1999):
+def FileWriteIsDone2(path, str_identifier, timeout=1999):
     sys.stdout.write('\r' + str(timeout))
     sys.stdout.flush()
     if (timeout <= 0):
@@ -101,12 +101,11 @@ def FileWriteIsDone2(path, timeout=1999):
     #a = win32gui.FindWindow(None, 'C:\Windows\system32\cmd.exe')
     #print(a, os.path.isfile(path))
     #check whether file exists and is not empty
-    #todo: read line by line, not all at once
-    if (os.path.isfile(path) and ('free_tree ok!' in open(path).read())):
+    if (os.path.isfile(path) and (str_identifier in open(path).read())):
         return True;
     else:
         time.sleep(1)
-        return FileWriteIsDone2(path,timeout - 1)
+        return FileWriteIsDone2(path,str_identifier,timeout - 1)
 
 def DirWriteIsDone(dir, timeout=999):
     if (timeout <= 0):
