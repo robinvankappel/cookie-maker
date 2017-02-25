@@ -12,6 +12,7 @@ import bz2
 from itertools import islice
 
 KEY_MIN_INDEX = 0#for testing purpose; default 0
+<<<<<<< Updated upstream
 KEY_MAX_INDEX = 9999999999#for testing purpose; default None
 WRITE_JSON = False
 BATCHING_PIO_RESULTS = True
@@ -21,6 +22,11 @@ BATCHING_PIO_RESULTS = True
 #-flop local, results external, no jsons: 300sec per 5000keys.
 #-flop external, move2local, results local, move2external, no jsons: 6200s for 30k keys
 #todo: if tree name is wrong, script fails.
+=======
+KEY_MAX_INDEX = None#for testing purpose; default None
+
+GENERATE_NEW_KEYS = True
+>>>>>>> Stashed changes
 
 
 #Global variables
@@ -255,8 +261,14 @@ def get_pio_results(subkeys, value,flop, helpers_dir, output_dir, start):
     print util.getTime(start, flop) + 'Generating batch file to retrieve tree results...'
     if (util.BatchWriteIsDone(batch_results)):
         existing_pio_processes = util.get_all_processes(PIO_NAME)
+<<<<<<< Updated upstream
         print util.getTime(start, flop) + 'running Pio to retrieve results...'
         q = subprocess.Popen(batch_results, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+=======
+        print util.getTime(flop) + 'running Pio to retrieve results...'
+        command = util.run_in_powershell(batch_results)
+        q = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+>>>>>>> Stashed changes
         # wait till new Pio process is started:
         new_pio_process = util.get_new_process(existing_pio_processes, PIO_NAME)
         print util.getTime(start, flop) + 'corresponding Pio process found (PID:' + str(new_pio_process.pid) + ')'
@@ -291,8 +303,29 @@ def get_all_keys(flop,lines_dir,helpers_dir,start,cards):
         new_pio_process = util.get_new_process(existing_pio_processes,PIO_NAME)
         print util.getTime(start,flop) + 'corresponding Pio process found (PID:' + str(new_pio_process.pid) + ')'
     else:
+<<<<<<< Updated upstream
         print util.getTime(start, flop) + 'failed opening batch file to get lines'
         exit(1)
+=======
+        # uncomment line below to generate script to retrieve lines, then run script in Pio.
+        line_file, line_script = build_script_to_get_lines(flop, lines_dir, helpers_dir)
+        # build batch which runs the line_file
+        batch_lines = build_batch_to_get_floplines(flop,line_script, helpers_dir)
+        # run batch file to run the script in Pio which retrieves the lines
+        print util.getTime(flop) + 'Writing files for retrieving lines...'
+        if (util.BatchWriteIsDone(batch_lines)):
+            existing_pio_processes = util.get_all_processes(PIO_NAME)
+            print util.getTime(flop) + 'Running Pio to retrieve lines...'
+            #path = 'E:\\db-filler\\generated_scripts\\helper_scripts\\run_script_to_get_lines-Ts9d4c_test2.bat\\'
+            command = util.run_in_powershell(batch_lines)
+            p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            #wait till new Pio process is started:
+            new_pio_process = util.get_new_process(existing_pio_processes,PIO_NAME)
+            print util.getTime(flop) + 'corresponding Pio process found (PID:' + str(new_pio_process.pid) + ')'
+        else:
+            print util.getTime(flop) + 'failed opening batch file to get lines'
+            exit(1)
+>>>>>>> Stashed changes
 
     # get the keys from the file created by Pio
     if (util.FileWriteIsDone(line_file)):

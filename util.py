@@ -364,6 +364,7 @@ def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,pot_type,bet_s
         f.write(content)
     return
 
+<<<<<<< Updated upstream
 # def generate_lines(default_line,flop,all_cards):
 #     if 'turn' in default_line:
 #         lines = list()
@@ -388,4 +389,17 @@ def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,pot_type,bet_s
 #                 new_line = new_line.replace('river',river_card)
 #             lines.append(new_line)
 #     return lines
+=======
+class PioOutput():
+    """
+    Make object containing filename and starttime
+    """
+    def __init__(self, output_file,keys):
+        self.file = output_file
+        self.keys = keys
+
+def run_in_powershell(batch_path):
+    command = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command "& { Start-Process ' + batch_path + ' -verb RunAs}"'
+    return command
+>>>>>>> Stashed changes
 
