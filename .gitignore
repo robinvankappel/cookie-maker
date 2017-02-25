@@ -1,11 +1,16 @@
 # Add any directories, files, or patterns you don't want to be tracked by version control
 
 ./idea/
+.idea
+*.pyc
+johan-app2.py
+main_functions_2.py
 
 # all input flops and scripts #
 ############
 generated_scripts/
 !generated_scripts/solved-flops.log
+
 
 # OUTPUT FILES #
 ######################
