@@ -10,16 +10,6 @@ import subprocess
 ##### LOCAL PATHS #####
 from config_paths import *
 
-##### SETTINGS FOR SOLVING #####
-STEP_SIZE = 5000  # number of keys retrieved in one Pio command
-
-KEY_MIN_INDEX = 0#for testing purpose; default 0
-KEY_MAX_INDEX = None#for testing purpose; default None
-
-GENERATE_NEW_KEYS = True
-
-##### ADDITIONAL PARAMETERS #####
-LOG_NAME = 'solved-flops.log'
 
 """
 ### CONTEXT:
@@ -53,7 +43,7 @@ def get_results(path_app):
     for flop in flops:
         flop_start_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
         print util.getTime(flop) + 'flop: ' + str(flop.name)
-        log_file = log_flops(flop, output_dir_base, flop_start_time, keys=None)
+        log_file = log_flops(flop, output_dir_base, flop_start_time, stepsize = STEP_SIZE, pot_type=POT_TYPE)
 
         # save original flop location
         flop_path_original = flop.path
@@ -67,7 +57,7 @@ def get_results(path_app):
         print util.getTime(flop) + 'Total number of keys to process: ' + str(len(keys))
         lengths = [len(i) for i in keys]
         max_length = max(lengths)
-        avg_length = sum(lengths) / float(len(lengths))
+        avg_length = round(sum(lengths) / float(len(lengths)),1)
         print util.getTime(flop) + 'Max key length: ' + str(max_length) + " --> key: " + str(keys[lengths.index(max_length)])
         print util.getTime(flop) + 'Average key length: ' + str(avg_length)
 
@@ -130,7 +120,7 @@ def get_results(path_app):
 
         print util.getTime(flop) + 'add flop to log'
         #save in log file which flops are solved
-        log_flops(flop, output_dir_base, flop_end_time, keys, FINISHED=1)
+        log_flops(flop, output_dir_base, flop_end_time, keys, avg_length, STEP_SIZE, FINISHED=1)
         if MOVE_RESULTS:
             path, file = os.path.split(log_file)
             shutil.copyfile(log_file,RESULTS_DIR+file)
@@ -231,13 +221,13 @@ def copy_flop(flop,temp_flop_dir):
     print util.getTime(flop) + 'finished copying'
     return new_flop_path
 
-def log_flops(flop, output_dir, time, keys=None, FINISHED=False):
+def log_flops(flop, output_dir, time, keys=None, avg_length=None, step_size=None, finished=False, pot_type=None):
     log_file = os.path.join(output_dir,LOG_NAME)
     with open(log_file, 'a+') as f:
-        if FINISHED:
-            content = 'FINISHED flop: ' + flop.name + ' (' + time + ', ' + str(len(keys)) + ' keys)' + '\n'
+        if finished:
+            content = 'FINISHED flop: ' + flop.name + ' (' + time + ', ' + str(len(keys)) + ' keys, avg key length = ' + str(avg_length) + ')' + '\n'
         else:
-            content = 'STARTING flop: ' + flop.name + ' (' +  time + ')' + '\n'
+            content = 'STARTING flop: ' + flop.name + ' (' +  time + ', step_size = ' + str(step_size) + ', pot_type = ' + pot_type + ')' + '\n'
         f.write(content)
     return log_file
 

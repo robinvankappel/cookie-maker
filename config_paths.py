@@ -1,3 +1,7 @@
+##### LOG PARAMETERS #####
+LOG_NAME = 'solved-flops.log'
+#____________________________
+
 ####### SETTINGS GOOGLE INSTANCE ########
 #PIO SETTINGS
 PIO_DIR = 'C:\\Users\\j_moene\\Desktop\\pio\\'
@@ -27,6 +31,12 @@ POTSIZEMAX = 2000
 #POTSIZESTART = 200 #if POT_TYPE = 3
 POTSIZESTART = 50 #if POT_TYPE = s
 
+##### SETTINGS FOR SOLVING #####
+STEP_SIZE = 1000  # number of keys retrieved in one Pio command
+KEY_MIN_INDEX = 0#for testing purpose; default 0
+KEY_MAX_INDEX = None#for testing purpose; default None
+GENERATE_NEW_KEYS = True
+
 ##### SETTINGS JELLE PC #######
 # #PIO SETTINGS
 # PIO_DIR = 'C:\\Users\\"J. Moene"\\Desktop\\"pio edge"\\'
@@ -54,3 +64,9 @@ POTSIZESTART = 50 #if POT_TYPE = s
 # POTSIZEMAX = 2000
 # POTSIZESTART = 200 #if POT_TYPE = 3
 # #POTSIZESTART = 50 #if POT_TYPE = s
+#
+# ##### SETTINGS FOR SOLVING #####
+# STEP_SIZE = 1000  # number of keys retrieved in one Pio command
+# KEY_MIN_INDEX = 0#for testing purpose; default 0
+# KEY_MAX_INDEX = None#for testing purpose; default None
+# GENERATE_NEW_KEYS = True
