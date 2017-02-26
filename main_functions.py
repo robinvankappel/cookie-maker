@@ -120,7 +120,7 @@ def get_results(path_app):
 
         print util.getTime(flop) + 'add flop to log'
         #save in log file which flops are solved
-        log_flops(flop, output_dir_base, flop_end_time, keys, avg_length, STEP_SIZE, FINISHED=1)
+        log_flops(flop, output_dir_base, flop_end_time, keys=keys, avg_length=avg_length, finished=1)
         if MOVE_RESULTS:
             path, file = os.path.split(log_file)
             shutil.copyfile(log_file,RESULTS_DIR+file)
@@ -221,13 +221,13 @@ def copy_flop(flop,temp_flop_dir):
     print util.getTime(flop) + 'finished copying'
     return new_flop_path
 
-def log_flops(flop, output_dir, time, keys=None, avg_length=None, step_size=None, finished=False, pot_type=None):
+def log_flops(flop, output_dir, time, keys=None, avg_length=None, stepsize=None, finished=False, pot_type=None):
     log_file = os.path.join(output_dir,LOG_NAME)
     with open(log_file, 'a+') as f:
         if finished:
             content = 'FINISHED flop: ' + flop.name + ' (' + time + ', ' + str(len(keys)) + ' keys, avg key length = ' + str(avg_length) + ')' + '\n'
         else:
-            content = 'STARTING flop: ' + flop.name + ' (' +  time + ', step_size = ' + str(step_size) + ', pot_type = ' + pot_type + ')' + '\n'
+            content = 'STARTING flop: ' + flop.name + ' (' +  time + ', step_size = ' + str(stepsize) + ', pot_type = ' + pot_type + ')' + '\n'
         f.write(content)
     return log_file
 
