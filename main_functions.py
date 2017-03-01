@@ -296,10 +296,7 @@ def build_script_to_generate_results_all_keys_one_file(keys, subset_end_index, f
 
 def get_dirs(path_app):
     work_dir = os.path.join(path_app,MAIN_FOLDER)+'\\'
-    if FLOP_LOCAL_INPUT_FOLDER:
-        flop_dir = os.path.join(work_dir,FLOP_FOLDER)+'\\'
-    else:
-        flop_dir = FLOP_DIR
+    flop_dir = FLOP_DIR
     temp_flop_dir = os.path.join(work_dir,FLOP_FOLDER)+'\\'
     if FLOP_LOCAL_RESULTS_FOLDER:
         output_dir = os.path.join(work_dir,RESULTS_FOLDER)+'\\'
