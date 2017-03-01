@@ -8,8 +8,12 @@ download and install Chrome
 download and install python @https://www.python.org/ftp/python/2.7.13/python-2.7.13.msi
 download and install PyCharm @https://www.jetbrains.com/pycharm/download/download-thanks.html?platform=windows
 
+add python path to environment variable 'Path'
+
 install pip (via pycharm?)
 cmd: cd to C:\Python27\Scripts: 'pip install -r D:\db-filler\requirements.txt'
 run D:\db-filler\MakeOutputfolders.bat
+
+put line files for srp and 3B in lines folder
 
 #### Trees
