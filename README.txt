@@ -10,7 +10,7 @@ download and install PyCharm @https://www.jetbrains.com/pycharm/download/downloa
 
 add python path to environment variable 'Path'
 
-install pip (via pycharm?)
+install pip (via pycharm)
 cmd: cd to C:\Python27\Scripts: 'pip install -r D:\db-filler\requirements.txt'
 run D:\db-filler\MakeOutputfolders.bat
 

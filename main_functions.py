@@ -31,7 +31,7 @@ from config_paths import *
 def get_results(path_app):
 
     #get/define all folder locations to be used
-    flop_dir, temp_flop_dir, output_dir, lines_dir, helpers_dir, json_dir = get_dirs(path_app)
+    flop_dir, output_dir, helpers_dir, lines_dir = get_dirs(path_app)
     output_dir_base = output_dir#when using multiple watchers
     #get all cards existing in poker
     cards = util.get_pokercards()
@@ -47,10 +47,6 @@ def get_results(path_app):
 
         # save original flop location
         flop_path_original = flop.path
-
-        #Function to copy flop to local disk because of performance reasons
-        if FLOP_LOCAL_INPUT_FOLDER == False:
-            copy_flop(flop,temp_flop_dir)
 
         #GENERATE KEYS FROM FILE WITH ALL LINES WITHOUT TURN AND RIVER CARDS
         keys = get_all_keys(flop,lines_dir,helpers_dir,cards,generate_new_keys=GENERATE_NEW_KEYS)
@@ -121,20 +117,12 @@ def get_results(path_app):
         print util.getTime(flop) + 'add flop to log'
         #save in log file which flops are solved
         log_flops(flop, output_dir_base, flop_end_time, keys=keys, avg_length=avg_length, finished=1)
-        if MOVE_RESULTS:
-            path, file = os.path.split(log_file)
-            shutil.copyfile(log_file,RESULTS_DIR+file)
 
         if MOVE_PROCESSED_FLOPS:
             print util.getTime(flop) + 'move processed flop'
             #move processed flop to different folder:
             path,file = os.path.split(flop_path_original)
             os.rename(flop_path_original, os.path.join(PROCESSED_FLOPS_DIR,file))
-
-        if FLOP_LOCAL_INPUT_FOLDER == False:
-            #delete (copied) flop on local disk
-            print util.getTime(flop) + 'remove flop on local disk'
-            os.remove(flop.path)
     return 0
 
 
@@ -170,9 +158,8 @@ def make_subset_keys(step_size, keys):
 
 def get_all_keys(flop,lines_dir,helpers_dir,cards,generate_new_keys=1):
     if not generate_new_keys:
-        lines_path = os.path.join(lines_dir, LINES_FILE)
-        keys = util.get_keys_from_file(lines_path, flop, cards, POTSIZEMAX, POTSIZESTART)
-        print util.getTime(flop) + 'retrieved all keys from ' + lines_path
+        keys = util.get_keys_from_file(LINES_FILE, flop, cards, POTSIZEMAX, POTSIZESTART)
+        print util.getTime(flop) + 'retrieved all keys from ' + LINES_FILE
     else:
         # uncomment line below to generate script to retrieve lines, then run script in Pio.
         line_file, line_script = build_script_to_get_lines(flop, lines_dir, helpers_dir)
@@ -297,25 +284,17 @@ def build_script_to_generate_results_all_keys_one_file(keys, subset_end_index, f
 def get_dirs(path_app):
     work_dir = os.path.join(path_app,MAIN_FOLDER)+'\\'
     flop_dir = FLOP_DIR
-    temp_flop_dir = os.path.join(work_dir,FLOP_FOLDER)+'\\'
-    if FLOP_LOCAL_RESULTS_FOLDER:
-        output_dir = os.path.join(work_dir,RESULTS_FOLDER)+'\\'
-    else:
-        output_dir = RESULTS_DIR
-    lines_dir = os.path.join(work_dir,'lines')+'\\'
+    output_dir = os.path.join(work_dir,RESULTS_FOLDER)+'\\'
     helpers_dir = os.path.join(work_dir,'helper_scripts')+'\\'
-    json_dir = os.path.join(work_dir,'json_files')+'\\'
-    #json_dir = JSON_DIR
+    lines_dir = os.path.join(work_dir, 'lines') + '\\'
     if not os.path.exists(work_dir):
             os.makedirs(work_dir)
     if not os.path.exists(flop_dir):
             os.makedirs(flop_dir)
     if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-    if not os.path.exists(lines_dir):
-            os.makedirs(lines_dir)
     if not os.path.exists(helpers_dir):
             os.makedirs(helpers_dir)
-    if not os.path.exists(json_dir):
-            os.makedirs(json_dir)
-    return flop_dir, temp_flop_dir, output_dir, lines_dir, helpers_dir, json_dir
+    if not os.path.exists(lines_dir):
+        os.makedirs(lines_dir)
+    return flop_dir, output_dir, helpers_dir, lines_dir
