@@ -14,6 +14,8 @@ install pip (via pycharm)
 cmd: cd to C:\Python27\Scripts: 'pip install -r D:\db-filler\requirements.txt'
 run D:\db-filler\MakeOutputfolders.bat
 
-put line files for srp and 3B in lines folder
 
-#### Trees
+#### Solving
+check paths in config_paths.py
+start runWatchers.bat in D:\watcher
+start johan-app.py (PyCharm or only file)
