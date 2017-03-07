@@ -19,11 +19,11 @@ LINES_FILE = 'D:\\db-filler\\USED_LINES_IN_FLOP_srp-25x.txt' #srp
 POT_TYPE = 's'  # 3bet = '3', 4bet = '4', single raised pot = 's'
 BET_SIZE = 2.5  # x big blind (e.g. 2.5 or 4)
 POTSIZEMAX = 2000
-POTSIZESTART = 200 #if POT_TYPE = 3
-#POTSIZESTART = 50 #if POT_TYPE = s
+# POTSIZESTART = 200 #if POT_TYPE = 3
+POTSIZESTART = 50 #if POT_TYPE = s
 
 ##### SETTINGS FOR SOLVING #####
-GENERATE_NEW_KEYS = False
+GENERATE_NEW_KEYS = True
 STEP_SIZE = 2000  # number of keys retrieved in one Pio command
 
 #CONSTANTS
