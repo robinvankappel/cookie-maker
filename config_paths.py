@@ -32,7 +32,7 @@ if POT_TYPE == '3':
     BET_SIZE = 4  # x big blind (e.g. 2.5 or 4)
     POTSIZEMAX = 2000
     POTSIZESTART = 200  # 50 if POT_TYPE = s, 200 if POT_TYPE = 3
-    STEP_SIZE = 5000  # number of keys retrieved in one Pio command
+    STEP_SIZE = 2000  # number of keys retrieved in one Pio command
 elif POT_TYPE == 's':
     BET_SIZE = 2.5  # x big blind (e.g. 2.5 or 4)
     POTSIZEMAX = 2000
