@@ -31,8 +31,8 @@ LINES_FILE = 'D:\\db-filler\\USED_LINES_IN_FLOP_3b-4x.txt' #3b
 if POT_TYPE == '3':
     BET_SIZE = 4  # x big blind (e.g. 2.5 or 4)
     POTSIZEMAX = 2000
-    POTSIZESTART = 50  # 50 if POT_TYPE = s, 200 if POT_TYPE = 3
-    STEP_SIZE = 1000  # number of keys retrieved in one Pio command
+    POTSIZESTART = 200  # 50 if POT_TYPE = s, 200 if POT_TYPE = 3
+    STEP_SIZE = 5000  # number of keys retrieved in one Pio command
 elif POT_TYPE == 's':
     BET_SIZE = 2.5  # x big blind (e.g. 2.5 or 4)
     POTSIZEMAX = 2000
