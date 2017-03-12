@@ -288,13 +288,15 @@ def get_dirs(path_app):
     helpers_dir = os.path.join(work_dir,'helper_scripts')+'\\'
     lines_dir = os.path.join(work_dir, 'lines') + '\\'
     if not os.path.exists(work_dir):
-            os.makedirs(work_dir)
+        os.makedirs(work_dir)
     if not os.path.exists(flop_dir):
-            os.makedirs(flop_dir)
+        os.makedirs(flop_dir)
     if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        os.makedirs(output_dir)
     if not os.path.exists(helpers_dir):
-            os.makedirs(helpers_dir)
+        os.makedirs(helpers_dir)
     if not os.path.exists(lines_dir):
         os.makedirs(lines_dir)
+    if not os.path.exists(PROCESSED_FLOPS_DIR):
+        os.makedirs(PROCESSED_FLOPS_DIR)
     return flop_dir, output_dir, helpers_dir, lines_dir
