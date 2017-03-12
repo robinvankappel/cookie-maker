@@ -7,27 +7,37 @@ LOG_NAME = 'solved-flops.log'
 PIO_DIR = 'D:\\pio\\'
 PIO_NAME = "PioSOLVER-pro19.exe"
 
+#TREE PROPERTIES (used in Pio solver):
+POT_TYPE = '3'  # 3bet = '3', 4bet = '4', single raised pot = 's'
+
+##### SETTINGS FOR SOLVING #####
+GENERATE_NEW_KEYS = False
+
 ###PATH SETTINGS (GLOBAL VARS)
 # FLOP_DIR = 'D:\\srp\\' # used when FLOP_LOCAL_INPUT_FOLDER = False #srp
 # PROCESSED_FLOPS_DIR = 'D:\\srp\\processed_flops' #srp
 # LINES_FILE = 'D:\\db-filler\\USED_LINES_IN_FLOP_srp-25x.txt' #srp
-FLOP_DIR = 'D:\\3bet_1\\' # used when FLOP_LOCAL_INPUT_FOLDER = False #3b
-PROCESSED_FLOPS_DIR = 'D:\\3bet_1\\processed_flops' #3b
-LINES_FILE = 'D:\\db-filler_1\\USED_LINES_IN_FLOP_3b-4x.txt' #3b
+# FLOP_DIR = 'D:\\srp_1\\' # used when FLOP_LOCAL_INPUT_FOLDER = False #srp
+# PROCESSED_FLOPS_DIR = 'D:\\srp_1\\processed_flops' #srp
+# LINES_FILE = 'D:\\db-filler_1\\USED_LINES_IN_FLOP_srp-25x.txt' #srp
+FLOP_DIR = 'D:\\3bet\\' # used when FLOP_LOCAL_INPUT_FOLDER = False #3b
+PROCESSED_FLOPS_DIR = 'D:\\3bet\\processed_flops' #3b
+LINES_FILE = 'D:\\db-filler\\USED_LINES_IN_FLOP_3b-4x.txt' #3b
+# FLOP_DIR = 'D:\\3bet_1\\' # used when FLOP_LOCAL_INPUT_FOLDER = False #3b
+# PROCESSED_FLOPS_DIR = 'D:\\3bet_1\\processed_flops' #3b
+# LINES_FILE = 'D:\\db-filler_1\\USED_LINES_IN_FLOP_3b-4x.txt' #3b
 
-#TREE PROPERTIES (used in Pio solver):
-POT_TYPE = '3'  # 3bet = '3', 4bet = '4', single raised pot = 's'
-BET_SIZE = 4  # x big blind (e.g. 2.5 or 4)
-POTSIZEMAX = 2000
-POTSIZESTART = 50 # 50 if POT_TYPE = s, 200 if POT_TYPE = 3
-# POT_TYPE = 's'  # 3bet = '3', 4bet = '4', single raised pot = 's'
-# BET_SIZE = 2.5  # x big blind (e.g. 2.5 or 4)
-# POTSIZEMAX = 2000
-# POTSIZESTART = 50 # 50 if POT_TYPE = s, 200 if POT_TYPE = 3
 
-##### SETTINGS FOR SOLVING #####
-GENERATE_NEW_KEYS = False
-STEP_SIZE = 2000  # number of keys retrieved in one Pio command
+if POT_TYPE == '3':
+    BET_SIZE = 4  # x big blind (e.g. 2.5 or 4)
+    POTSIZEMAX = 2000
+    POTSIZESTART = 50  # 50 if POT_TYPE = s, 200 if POT_TYPE = 3
+    STEP_SIZE = 1000  # number of keys retrieved in one Pio command
+elif POT_TYPE == 's':
+    BET_SIZE = 2.5  # x big blind (e.g. 2.5 or 4)
+    POTSIZEMAX = 2000
+    POTSIZESTART = 50 # 50 if POT_TYPE = s, 200 if POT_TYPE = 3
+    STEP_SIZE = 2000  # number of keys retrieved in one Pio command
 
 #CONSTANTS
 PIO_LOC = PIO_DIR + PIO_NAME
