@@ -80,7 +80,7 @@ def FileWriteIsDone(path, filesize=None, timeout=-1):
         if (os.path.isfile(path)):
             filesize_new = os.stat(path).st_size
             if (filesize_new == filesize) and (filesize > 10000):
-                time.sleep(1)#time to close file, might be necessary (?)
+                time.sleep(3)#time to close file, might be necessary (?)
                 return True;
             else:
                 time.sleep(1)
@@ -336,8 +336,11 @@ def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,pot_type,bet_s
         content += str(bet_size) + '\n'
         content += 'END_OF_FILE' + '\n'
         f.write(content)
-    f.closed
-    return
+    while 1:
+        if f.closed:
+            return
+        else:
+            time.sleep(1)
 
 class PioOutput():
     """
