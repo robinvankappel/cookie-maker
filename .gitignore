@@ -3,12 +3,10 @@
 
 ./idea/
 
-.idea
+.idea/
 *.pyc
 
-johan-app2.py
-
-main_functions_2.py
+config_paths.py
 
 
 # all input flops and scripts #
