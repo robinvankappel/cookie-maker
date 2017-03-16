@@ -339,8 +339,8 @@ def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,pot_type,bet_s
     while 1:
         if f.closed:
             return
-        else:
-            time.sleep(1)
+        # else:
+        #     time.sleep(1)
 
 class PioOutput():
     """
