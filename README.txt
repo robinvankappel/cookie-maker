@@ -19,3 +19,7 @@ run D:\db-filler\MakeOutputfolders.bat
 check paths in config_paths.py
 start runWatchers.bat in D:\watcher
 start johan-app.py (PyCharm or only file)
+
+_________
+tips and tricks:
+-if program returns 'pftables.dat is missing' then this file cannot be found in the current working directory. The batch file which calls this function should be run as administrator. Therefore disable UAC (User Account Control of Windows); restart is required.

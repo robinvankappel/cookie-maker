@@ -4,6 +4,7 @@ import os
 import time
 import psutil
 import sys
+from config_paths import *
 
 def kill_all_processes(process):
     for proc in psutil.process_iter():
@@ -43,12 +44,8 @@ def get_new_process(process_list,process_name,timeout=-1,only_print_once=1):
 
 def getTime(flop):
     time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-    time_str = '(Time: ' + time_now + ', ' + flop.name + ') '
+    time_str = '(Time: ' + time_now + ', ' + flop.flop + ') '
     return time_str
-
-def key2fullkey(flop,key,pot_type,bet_size):
-    full_key = flop.name + '_' + str(pot_type) + '_' + str(int(bet_size * 10.0)) + '_' + key.replace(':', '_')
-    return full_key
 
 def wait_till_copy_finished(new_flop_path):
     copying = True
@@ -66,9 +63,19 @@ def get_flops(flop_dir):
     flops = list()
     for file in os.listdir(flop_dir):
         if file.endswith(".cfr"):
-            name = file.split('.')[0]
+            filename = file.split('.')[0]
+            stacksize = int(float(filename.split('_')[0]))
+            type = filename.split('_')[1]
+            flopname = filename.split('_')[2]
             path = flop_dir + file
-            flops.append(Flop(name,flop_dir,path))
+            if not type == 's' and not '3' and not '4' and not '5' \
+                    or len(flopname) != 6 \
+                    or not isinstance(stacksize,int):
+                print 'not a valid flop name: ' + str(file)
+                continue
+            flop = Flop(stacksize,type,flopname,flop_dir,path,filename)
+            Flop.add_settings(flop)
+            flops.append(flop)
     return flops
 
 def FileWriteIsDone(path, filesize=None, timeout=-1):
@@ -79,7 +86,7 @@ def FileWriteIsDone(path, filesize=None, timeout=-1):
             return False
         if (os.path.isfile(path)):
             filesize_new = os.stat(path).st_size
-            if (filesize_new == filesize) and (filesize > 10000):
+            if (filesize_new == filesize) and (filesize > 2000):
                 time.sleep(3)#time to close file, might be necessary (?)
                 return True;
             else:
@@ -105,10 +112,15 @@ class Flop():
     """
     Make object containing filename and starttime
     """
-    def __init__(self, name, dir, path):
-        self.name = name
+    def __init__(self, stacksize, type, flop, dir, path, filename):
+        self.stacksize = stacksize
+        self.type = type
+        self.flop = flop
         self.dir = dir
         self.path = path
+        self.filename = filename
+    def add_settings(self):
+        self.settings = Settings(self)
 
 def generate_watch_folders(i,output_dir_base,numberofwatchfolders=1):
     if (i % numberofwatchfolders) == 0:
@@ -163,10 +175,10 @@ def get_keys(lines):
                     keys.append(new_key)
     return keys
 
-def get_keys_from_file(line_file,flop,cards,POTSIZEMAX,POTSIZESTART):
+def get_keys_from_file(flop,linefile,cards=get_pokercards()):
     all_keys = list()
     #retrieve keys from line file
-    keys_without_cards = get_keys_without_cards(line_file)
+    keys_without_cards = get_keys_without_cards(linefile)
 
     for key in keys_without_cards:
         # add turn and river card in correct positions
@@ -177,7 +189,7 @@ def get_keys_from_file(line_file,flop,cards,POTSIZEMAX,POTSIZESTART):
         #   c:c after river
         #   c after b after river
         #   keys which are all-in
-        all_in_situation = 'b' + str(int((POTSIZEMAX - POTSIZESTART) / 2)) + ':c'
+        all_in_situation = 'b' + str(int((flop.settings.POTSIZEMAX - flop.settings.POTSIZESTART) / 2)) + ':c'
         if (default_line[-1] == 'f') or \
                 ('river' in default_line and default_line.endswith('c:c')) or \
                 ('river' in default_line and default_line.endswith(':c') and default_line[-(len(':c') + 1)].isdigit()):
@@ -195,9 +207,9 @@ def add_cards(default_line,flop,all_cards):
     lines = list()
     if 'turn' in default_line:
         #exclude flop cards
-        card1 = flop.name[0:2]
-        card2 = flop.name[2:4]
-        card3 = flop.name[4:6]
+        card1 = flop.flop[0:2]
+        card2 = flop.flop[2:4]
+        card3 = flop.flop[4:6]
         cards = all_cards[0:len(all_cards)]
         try:
             cards.remove(card1)
@@ -320,7 +332,7 @@ def get_default_line(v_line):
             line += action + ':'
     return line
 
-def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,pot_type,bet_size):
+def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,flop):
     content = '\n' + 'END_OF_RESULTS' + '\n'
     with open(pio_results_output, 'a') as f:
         # append keys to existing file
@@ -331,9 +343,9 @@ def add_subkeys_and_metadata_to_output(subkeys,pio_results_output,pot_type,bet_s
         content += 'KEYS END' + '\n'
         #add meta data
         content += 'POT_TYPE:'+ '\n'
-        content += pot_type + '\n'
+        content += flop.type + '\n'
         content += 'BET_SIZE:' + '\n'
-        content += str(bet_size) + '\n'
+        content += str(flop.stacksize) + '\n'
         content += 'END_OF_FILE' + '\n'
         f.write(content)
     while 1:

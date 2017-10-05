@@ -10,7 +10,6 @@ import subprocess
 ##### LOCAL PATHS #####
 from config_paths import *
 
-
 """
 ### CONTEXT:
 # DB contains key-value pairs:
@@ -33,8 +32,6 @@ def get_results(path_app):
     #get/define all folder locations to be used
     flop_dir, output_dir, helpers_dir, lines_dir = get_dirs(path_app)
     output_dir_base = output_dir#when using multiple watchers
-    #get all cards existing in poker
-    cards = util.get_pokercards()
     print 'Starting with processing flops in input folder...'
 
     # get all flop files
@@ -42,14 +39,14 @@ def get_results(path_app):
     #iterate over flops in dir
     for flop in flops:
         flop_start_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-        print util.getTime(flop) + 'flop: ' + str(flop.name)
-        log_file = log_flops(flop, output_dir_base, flop_start_time, stepsize = STEP_SIZE, pot_type=POT_TYPE)
+        print util.getTime(flop) + 'flop: ' + str(flop.flop) + ', type: ' + flop.type + ', stack size: ' + str(flop.stacksize)
+        log_file = log_flops(flop, output_dir_base, flop_start_time)
 
         # save original flop location
         flop_path_original = flop.path
 
         #GENERATE KEYS FROM FILE WITH ALL LINES WITHOUT TURN AND RIVER CARDS
-        keys = get_all_keys(flop,lines_dir,helpers_dir,cards,generate_new_keys=GENERATE_NEW_KEYS)
+        keys = get_all_keys(flop,lines_dir,helpers_dir,generate_new_keys=GENERATE_NEW_KEYS)
         print util.getTime(flop) + 'Total number of keys to process: ' + str(len(keys))
         lengths = [len(i) for i in keys]
         max_length = max(lengths)
@@ -64,10 +61,10 @@ def get_results(path_app):
             keys = keys[KEY_MIN_INDEX:]
 
         #make subset of keys such that entire process is split in parts, for computational reasons.
-        keys_iter = make_subset_keys(STEP_SIZE, keys)
+        keys_iter = make_subset_keys(flop.settings.STEP_SIZE, keys)
 
         # make script per flop
-        helper_script = helpers_dir + flop.name + '.txt'
+        helper_script = helpers_dir + flop.flop + '.txt'
         if os.path.isfile(helper_script):
             os.remove(helper_script)
 
@@ -82,7 +79,7 @@ def get_results(path_app):
             #add subkeys to script
             if not i == 0:
                 # use different output folders such that multiple watchers can be used:
-                output_dir = util.generate_watch_folders(i,output_dir_base,numberofwatchfolders=10)
+                output_dir = util.generate_watch_folders(i,output_dir_base,numberofwatchfolders=WATCHERS)
 
                 subkeys = keys[keys_iter[i-1]:keys_iter[i]]
 
@@ -102,7 +99,7 @@ def get_results(path_app):
         # add subkeys to each output file:
         for pio_output in pio_outputs:
             if (util.FileWriteIsDone(pio_output.file)):
-                util.add_subkeys_and_metadata_to_output(pio_output.keys, pio_output.file, POT_TYPE, BET_SIZE)
+                util.add_subkeys_and_metadata_to_output(pio_output.keys, pio_output.file, flop)
 
         #wait till last pio_results_output file is written, then add subkeys and metadata
         print util.getTime(flop) + 'waiting till last file is written...'
@@ -156,14 +153,15 @@ def make_subset_keys(step_size, keys):
     keys_iter.append(len(keys) - 1)
     return keys_iter
 
-def get_all_keys(flop,lines_dir,helpers_dir,cards,generate_new_keys=1):
+def get_all_keys(flop,lines_dir,helpers_dir,generate_new_keys=0):
     if not generate_new_keys:
-        keys = util.get_keys_from_file(LINES_FILE, flop, cards, POTSIZEMAX, POTSIZESTART)
-        print util.getTime(flop) + 'retrieved all keys from ' + LINES_FILE
+        # select linefile based on flop type and stack size
+        keys = util.get_keys_from_file(flop,flop.settings.LINEFILE)
+        print util.getTime(flop) + 'retrieved all keys from ' + flop.settings.LINEFILE
     else:
         # uncomment line below to generate script to retrieve lines, then run script in Pio.
-        line_file, line_script = build_script_to_get_lines(flop, lines_dir, helpers_dir)
-        # build batch which runs the line_file
+        linefile, line_script = build_script_to_get_lines(flop, lines_dir, helpers_dir)
+        # build batch which runs the linefile
         batch_lines = build_batch_to_get_floplines(flop,line_script, helpers_dir)
         # run batch file to run the script in Pio which retrieves the lines
         print util.getTime(flop) + 'Writing files for retrieving lines...'
@@ -183,12 +181,12 @@ def get_all_keys(flop,lines_dir,helpers_dir,cards,generate_new_keys=1):
             exit(1)
 
         # get the keys from the file created by Pio
-        if (util.FileWriteIsDone(line_file)):
-            if os.stat(line_file).st_size < 10000:
+        if (util.FileWriteIsDone(linefile)):
+            if os.stat(linefile).st_size < 2000:
                 print util.getTime(flop) + 'failed getting lines (line file < 10KB)'
                 exit(1)
             print util.getTime(flop) + 'getting keys from lines...'
-            keys = util.get_keys_from_file(line_file, flop, cards, POTSIZEMAX, POTSIZESTART)
+            keys = util.get_keys_from_file(flop,linefile)
 
             new_pio_process.terminate()
             time.sleep(2)#wait (longer than wait of sleep timer in get_new_process such that other process can continue)
@@ -202,24 +200,24 @@ def get_all_keys(flop,lines_dir,helpers_dir,cards,generate_new_keys=1):
 def copy_flop(flop,temp_flop_dir):
     print util.getTime(flop) + 'Copy flop to local disk...'
     shutil.copy2(flop.path, temp_flop_dir)  # copy flop to local disk
-    new_flop_path = temp_flop_dir + flop.name + '.cfr'  # set new flop as flop
+    new_flop_path = temp_flop_dir + flop.flop + '.cfr'  # set new flop as flop
     util.wait_till_copy_finished(new_flop_path)
     flop.path = new_flop_path  # set new flop as flop
     print util.getTime(flop) + 'finished copying'
     return new_flop_path
 
-def log_flops(flop, output_dir, time, keys=None, avg_length=None, stepsize=None, finished=False, pot_type=None):
+def log_flops(flop, output_dir, time, keys=None, avg_length=None, finished=False):
     log_file = os.path.join(output_dir,LOG_NAME)
     with open(log_file, 'a+') as f:
         if finished:
-            content = 'FINISHED flop: ' + flop.name + ' (' + time + ', ' + str(len(keys)) + ' keys, avg key length = ' + str(avg_length) + ')' + '\n'
+            content = 'FINISHED flop: ' + flop.flop + ', ' + str(flop.stacksize) + 'BB' + ', ' + flop.type + ' (' + time + ', ' + str(len(keys)) + ' keys, avg key length = ' + str(avg_length) + ')' + '\n'
         else:
-            content = 'STARTING flop: ' + flop.name + ' (' +  time + ', step_size = ' + str(stepsize) + ', pot_type = ' + pot_type + ')' + '\n'
+            content = 'STARTING flop: ' + flop.flop + ', ' + str(flop.stacksize) + 'BB' + ', ' + flop.type + ' (' +  time + ', flop.STEP_SIZE = ' + str(flop.settings.STEP_SIZE) + ')' + '\n'
         f.write(content)
     return log_file
 
 def build_batch_results_all_keys(flop,pio_results_file,helpers_dir):
-    batch_file = helpers_dir + 'run_script_to_get_results' + flop.name + '.bat'
+    batch_file = helpers_dir + 'run_script_to_get_results' + flop.flop + '.bat'
     if os.path.isfile(batch_file):
         os.remove(batch_file)
     with open(batch_file, 'w+') as f:
@@ -233,7 +231,7 @@ def build_batch_results_all_keys(flop,pio_results_file,helpers_dir):
     return batch_file
 
 def build_batch_to_get_floplines(flop,pio_lines_file,helpers_dir):
-    batch_file = helpers_dir + 'run_script_to_get_lines-' + flop.name + '.bat'
+    batch_file = helpers_dir + 'run_script_to_get_lines-' + flop.flop + '.bat'
     if os.path.isfile(batch_file):
         os.remove(batch_file)
     with open(batch_file, 'w+') as f:
@@ -248,12 +246,12 @@ def build_batch_to_get_floplines(flop,pio_lines_file,helpers_dir):
 
 def build_script_to_get_lines(flop, lines_dir, helpers_dir):
     # make script per flop
-    helper_script = helpers_dir + flop.name + '_getlines.txt'
+    helper_script = helpers_dir + flop.flop + '_getlines.txt'
     if os.path.isfile(helper_script):
         os.remove(helper_script)
     # if not os.path.exists(output_dir):
     #     os.makedirs(output_dir)
-    output_file = lines_dir + 'used_lines_in_flop-' + flop.name + '.txt'
+    output_file = lines_dir + 'USED_LINES_IN_FLOP_' + str(flop.stacksize) + '-' + flop.type + '-' + str(flop.settings.BET_SIZE) + 'x.txt'
     #remove file if it already exists
     if os.path.isfile(output_file):
         os.remove(output_file)
@@ -268,7 +266,7 @@ def build_script_to_get_lines(flop, lines_dir, helpers_dir):
     return output_file, helper_script
 
 def build_script_to_generate_results_all_keys_one_file(keys, subset_end_index, flop, helper_script, output_dir):
-    output_file = output_dir + '\\' + flop.name + '-' + str(subset_end_index) + '.txt'
+    output_file = output_dir + '\\' + flop.filename + '-' + str(subset_end_index) + '.txt'
     with open(helper_script, 'a+') as f:
         content = 'stdoutredi ' + '"' + output_file + '"' + '\n'
         for key in keys:
@@ -283,7 +281,7 @@ def build_script_to_generate_results_all_keys_one_file(keys, subset_end_index, f
 
 def get_dirs(path_app):
     work_dir = os.path.join(path_app,MAIN_FOLDER)+'\\'
-    flop_dir = FLOP_DIR
+    flop_dir = FLOP_DIR+'\\'
     output_dir = os.path.join(work_dir,RESULTS_FOLDER)+'\\'
     helpers_dir = os.path.join(work_dir,'helper_scripts')+'\\'
     lines_dir = os.path.join(work_dir, 'lines') + '\\'
