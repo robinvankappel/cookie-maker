@@ -4,7 +4,7 @@ import os
 import time
 import psutil
 import sys
-from config_paths import *
+from config import *
 
 def kill_all_processes(process):
     for proc in psutil.process_iter():
@@ -121,29 +121,6 @@ class Flop():
         self.filename = filename
     def add_settings(self):
         self.settings = Settings(self)
-
-def generate_watch_folders(i,output_dir_base,numberofwatchfolders=1):
-    if (i % numberofwatchfolders) == 0:
-        output_dir = os.path.join(output_dir_base, 'A')
-    elif (i % numberofwatchfolders) == 1:
-        output_dir = os.path.join(output_dir_base, 'B')
-    elif (i % numberofwatchfolders) == 2:
-        output_dir = os.path.join(output_dir_base, 'C')
-    elif (i % numberofwatchfolders) == 3:
-        output_dir = os.path.join(output_dir_base, 'D')
-    elif (i % numberofwatchfolders) == 4:
-        output_dir = os.path.join(output_dir_base, 'E')
-    elif (i % numberofwatchfolders) == 5:
-        output_dir = os.path.join(output_dir_base, 'F')
-    elif (i % numberofwatchfolders) == 6:
-        output_dir = os.path.join(output_dir_base, 'G')
-    elif (i % numberofwatchfolders) == 7:
-        output_dir = os.path.join(output_dir_base, 'H')
-    elif (i % numberofwatchfolders) == 8:
-        output_dir = os.path.join(output_dir_base, 'I')
-    elif (i % numberofwatchfolders) == 9:
-        output_dir = os.path.join(output_dir_base, 'J')
-    return output_dir
 
 def get_pokercards():
     cards = list()

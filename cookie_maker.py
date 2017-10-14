@@ -6,7 +6,8 @@ import os, sys
 import itertools
 import time
 import subprocess
-from config_paths import *
+from config import *
+from config_watchers import *
 
 
 """
@@ -78,7 +79,7 @@ def cookie_maker(path_app):
             #add subkeys to script
             if not i == 0:
                 # use different output folders such that multiple watchers can be used:
-                output_dir = util.generate_watch_folders(i,output_dir_base,numberofwatchfolders=WATCHERS)
+                output_dir = watchers.paths[i % watchers.number]#todo: define watchers
 
                 subkeys = keys[keys_iter[i-1]:keys_iter[i]]
 
