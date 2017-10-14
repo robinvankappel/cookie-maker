@@ -4,7 +4,7 @@
 .idea/
 *.pyc
 
-config_paths.py
+#config_paths.py
 
 # all input flops and scripts #
 ############
