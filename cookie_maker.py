@@ -2,13 +2,12 @@ __author__ = 'Robin'
 
 import util
 import shutil
-import os
+import os, sys
 import itertools
 import time
 import subprocess
-
-##### LOCAL PATHS #####
 from config_paths import *
+
 
 """
 ### CONTEXT:
@@ -27,7 +26,7 @@ from config_paths import *
 # Build json from results and send to API (in watcher)
 """
 #todo: if tree name is wrong, script fails.
-def get_results(path_app):
+def cookie_maker(path_app):
 
     #get/define all folder locations to be used
     flop_dir, output_dir, helpers_dir, lines_dir = get_dirs(path_app)
@@ -298,3 +297,7 @@ def get_dirs(path_app):
     if not os.path.exists(PROCESSED_FLOPS_DIR):
         os.makedirs(PROCESSED_FLOPS_DIR)
     return flop_dir, output_dir, helpers_dir, lines_dir
+
+if __name__ == "__main__":
+    PATH_APP = os.path.abspath(os.path.dirname(sys.argv[0]))
+    cookie_maker(path_app=PATH_APP)
