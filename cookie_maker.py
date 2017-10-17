@@ -3,11 +3,12 @@ __author__ = 'Robin'
 import util
 import shutil
 import os, sys
+sys.path.append('D:\cookie')
 import itertools
 import time
 import subprocess
-from config import *
-from config_watchers import *
+from config_maker import *
+from config_cookie import *
 
 
 """
@@ -30,23 +31,23 @@ from config_watchers import *
 def cookie_maker(path_app):
 
     #get/define all folder locations to be used
-    flop_dir, output_dir, helpers_dir, lines_dir = get_dirs(path_app)
-    output_dir_base = output_dir#when using multiple watchers
+    output_dir, helpers_dir, lines_dir = get_dirs(path_app)
+    watchers = Watchers(WATCHERS,WATCH_DIR)
     print 'Starting with processing flops in input folder...'
 
     # get all flop files
-    flops = util.get_flops(flop_dir)
+    flops = util.get_flops(FLOP_DIR)
     #iterate over flops in dir
     for flop in flops:
         flop_start_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
         print util.getTime(flop) + 'flop: ' + str(flop.flop) + ', type: ' + flop.type + ', stack size: ' + str(flop.stacksize)
-        log_file = log_flops(flop, output_dir_base, flop_start_time)
+        log_flops(flop, watchers.dir, flop_start_time)
 
         # save original flop location
         flop_path_original = flop.path
 
         #GENERATE KEYS FROM FILE WITH ALL LINES WITHOUT TURN AND RIVER CARDS
-        keys = get_all_keys(flop,lines_dir,helpers_dir,generate_new_keys=GENERATE_NEW_KEYS)
+        keys = get_all_keys(flop,lines_dir,helpers_dir)
         print util.getTime(flop) + 'Total number of keys to process: ' + str(len(keys))
         lengths = [len(i) for i in keys]
         max_length = max(lengths)
@@ -60,9 +61,6 @@ def cookie_maker(path_app):
         else:
             keys = keys[KEY_MIN_INDEX:]
 
-        #make subset of keys such that entire process is split in parts, for computational reasons.
-        keys_iter = make_subset_keys(flop.settings.STEP_SIZE, keys)
-
         # make script per flop
         helper_script = helpers_dir + flop.flop + '.txt'
         if os.path.isfile(helper_script):
@@ -74,32 +72,29 @@ def cookie_maker(path_app):
             content = 'load_tree ' + '"' + flop.path + '"' + '\n'
             f.write(content)
         pio_outputs = list()
-        #iterate over subsets
+        # iterate over subset of keys such that entire process is split in parts, for computational reasons.
+        keys_iter = make_subset_keys(flop.settings.STEP_SIZE, keys)
         for i,subset_end_index in enumerate(keys_iter):
             #add subkeys to script
             if not i == 0:
                 # use different output folders such that multiple watchers can be used:
-                output_dir = watchers.paths[i % watchers.number]#todo: define watchers
+                output_dir = watchers.paths[i % watchers.number]
 
                 subkeys = keys[keys_iter[i-1]:keys_iter[i]]
 
                 # add subkeys with subfolder to pio script which can generate the results for these keys incl. actions (=children)
                 pio_output = build_script_to_generate_results_all_keys_one_file(subkeys, subset_end_index,
-                                                                                                      flop,helper_script,output_dir)
+                                                                                                      flop,helper_script,output_dir,end=(i==len(keys_iter)-1))
                 pio_outputs.append(pio_output)
-        #finalize pio script
-        with open(helper_script, 'a+') as f:
-            content = 'free_tree' + '\n'
-            f.write(content)
 
         #build batch and run batch to start pio
         new_pio_process = run_pio(flop, helper_script, helpers_dir)
 
-        print util.getTime(flop) + 'Adding subkeys and meta-data to each output file...'
-        # add subkeys to each output file:
-        for pio_output in pio_outputs:
-            if (util.FileWriteIsDone(pio_output.file)):
-                util.add_subkeys_and_metadata_to_output(pio_output.keys, pio_output.file, flop)
+        # print util.getTime(flop) + 'Adding subkeys and meta-data to each output file...'
+        # # add subkeys to each output file:
+        # for pio_output in pio_outputs:
+        #     if (util.FileWriteIsDone(pio_output.file)):
+        #         util.add_subkeys_and_metadata_to_output(pio_output.keys, pio_output.file, flop)
 
         #wait till last pio_results_output file is written, then add subkeys and metadata
         print util.getTime(flop) + 'waiting till last file is written...'
@@ -113,7 +108,7 @@ def cookie_maker(path_app):
 
         print util.getTime(flop) + 'add flop to log'
         #save in log file which flops are solved
-        log_flops(flop, output_dir_base, flop_end_time, keys=keys, avg_length=avg_length, finished=1)
+        log_flops(flop, watchers.dir, flop_end_time, keys=keys, avg_length=avg_length, finished=1)
 
         if MOVE_PROCESSED_FLOPS:
             print util.getTime(flop) + 'move processed flop'
@@ -153,21 +148,21 @@ def make_subset_keys(step_size, keys):
     keys_iter.append(len(keys) - 1)
     return keys_iter
 
-def get_all_keys(flop,lines_dir,helpers_dir,generate_new_keys=0):
-    if not generate_new_keys:
+def get_all_keys(flop,lines_dir,helpers_dir):
+    if os.path.isfile(lines_dir + flop.settings.LINEFILE):
         # select linefile based on flop type and stack size
-        keys = util.get_keys_from_file(flop,flop.settings.LINEFILE)
-        print util.getTime(flop) + 'retrieved all keys from ' + flop.settings.LINEFILE
+        keys = util.get_keys_from_file(flop,lines_dir)
+        print util.getTime(flop) + 'Retrieved all keys from ' + flop.settings.LINEFILE
     else:
+        print util.getTime(flop) + 'Starting proces to generate lines...'
         # uncomment line below to generate script to retrieve lines, then run script in Pio.
-        linefile, line_script = build_script_to_get_lines(flop, lines_dir, helpers_dir)
+        line_script = build_script_to_get_lines(flop, lines_dir, helpers_dir)
         # build batch which runs the linefile
         batch_lines = build_batch_to_get_floplines(flop,line_script, helpers_dir)
         # run batch file to run the script in Pio which retrieves the lines
-        print util.getTime(flop) + 'Writing files for retrieving lines...'
         if (util.BatchWriteIsDone(batch_lines)):
             existing_pio_processes = util.get_all_processes(PIO_NAME)
-            print util.getTime(flop) + 'Running Pio to retrieve lines...'
+            #print util.getTime(flop) + 'Running Pio to retrieve lines...'
             if USE_POWERSHELL:
                 command = util.run_in_powershell(batch_lines)
                 q = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -175,23 +170,23 @@ def get_all_keys(flop,lines_dir,helpers_dir,generate_new_keys=0):
                 q = subprocess.Popen(batch_lines, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             #wait till new Pio process is started:
             new_pio_process = util.get_new_process(existing_pio_processes,PIO_NAME)
-            print util.getTime(flop) + 'corresponding Pio process found (PID:' + str(new_pio_process.pid) + ')'
+            #print util.getTime(flop) + 'corresponding Pio process found (PID:' + str(new_pio_process.pid) + ')'
         else:
-            print util.getTime(flop) + 'failed opening batch file to get lines'
+            print util.getTime(flop) + 'FAILED opening batch file to get lines'
             exit(1)
 
         # get the keys from the file created by Pio
-        if (util.FileWriteIsDone(linefile)):
-            if os.stat(linefile).st_size < 2000:
-                print util.getTime(flop) + 'failed getting lines (line file < 10KB)'
+        if (util.FileWriteIsDone(flop.settings.LINE_FILE)):
+            if os.stat(flop.settings.LINE_FILE).st_size < 2000:
+                print util.getTime(flop) + 'failed getting lines (line file < 2KB)'
                 exit(1)
-            print util.getTime(flop) + 'getting keys from lines...'
-            keys = util.get_keys_from_file(flop,linefile)
+            #print util.getTime(flop) + 'getting keys from lines...'
+            keys = util.get_keys_from_file(flop,lines_dir)
 
             new_pio_process.terminate()
             time.sleep(2)#wait (longer than wait of sleep timer in get_new_process such that other process can continue)
             #util.kill_all_processes(PIO_NAME)
-            print util.getTime(flop) + 'retrieved all keys by generating them with Pio'
+            print util.getTime(flop) + 'Retrieved all keys by generating them with Pio'
         else:
             print util.getTime(flop) + 'failed reading lines from file'
             exit(1)
@@ -249,9 +244,7 @@ def build_script_to_get_lines(flop, lines_dir, helpers_dir):
     helper_script = helpers_dir + flop.flop + '_getlines.txt'
     if os.path.isfile(helper_script):
         os.remove(helper_script)
-    # if not os.path.exists(output_dir):
-    #     os.makedirs(output_dir)
-    output_file = lines_dir + 'USED_LINES_IN_FLOP_' + str(flop.stacksize) + '-' + flop.type + '-' + str(flop.settings.BET_SIZE) + 'x.txt'
+    output_file = lines_dir + flop.settings.LINEFILE
     #remove file if it already exists
     if os.path.isfile(output_file):
         os.remove(output_file)
@@ -259,45 +252,48 @@ def build_script_to_get_lines(flop, lines_dir, helpers_dir):
         content = 'load_tree ' + '"' + flop.path + '"' + '\n'
         content += 'stdoutredi ' + '"' + output_file + '"' + '\n'
         content += 'show_all_freqs local ' + '\n'
-        #print 'Script for retrieving lines of tree:'
-        #print content
-        #print '\n'
         f.write(content)
-    return output_file, helper_script
+    return helper_script
 
-def build_script_to_generate_results_all_keys_one_file(keys, subset_end_index, flop, helper_script, output_dir):
+def build_script_to_generate_results_all_keys_one_file(keys, subset_end_index, flop, helper_script, output_dir, end=False):
     output_file = output_dir + '\\' + flop.filename + '-' + str(subset_end_index) + '.txt'
+    if os.path.isfile(output_file):
+        os.remove(output_file)
     with open(helper_script, 'a+') as f:
         content = 'stdoutredi ' + '"' + output_file + '"' + '\n'
         for key in keys:
-            if os.path.isfile(output_file):
-                os.remove(output_file)
             content += 'show_strategy_pp ' + key + '\n'
             content += 'show_children ' + key + '\n'
-            content += 'is_ready' + '\n'
+            content += 'is_ready\n'
+        #Adding subkeys and meta-data to output file
+        content += 'echo END_OF_RESULTS\n'
+        # append keys to existing file
+        content += 'echo KEYS_START\n'
+        # add keys
+        for key in keys:
+            content += 'echo ' + key + '\n'
+        content += 'echo KEYS_END\n'
+        # add meta data
+        content += 'echo POT_TYPE:\n'
+        content += 'echo ' + flop.type + '\n'
+        content += 'echo BET_SIZE(BB):\n'
+        content += 'echo ' + str(flop.settings.BET_SIZE) + '\n'
+        content += 'echo END_OF_FILE\n'
+        #remove tree from RAM with last helper file
+        if end:
+            content += 'free_tree' + '\n'
         f.write(content)
     pio_output = util.PioOutput(output_file,keys)
     return pio_output
 
 def get_dirs(path_app):
-    work_dir = os.path.join(path_app,MAIN_FOLDER)+'\\'
-    flop_dir = FLOP_DIR+'\\'
-    output_dir = os.path.join(work_dir,RESULTS_FOLDER)+'\\'
-    helpers_dir = os.path.join(work_dir,'helper_scripts')+'\\'
-    lines_dir = os.path.join(work_dir, 'lines') + '\\'
-    if not os.path.exists(work_dir):
-        os.makedirs(work_dir)
-    if not os.path.exists(flop_dir):
-        os.makedirs(flop_dir)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    if not os.path.exists(helpers_dir):
-        os.makedirs(helpers_dir)
-    if not os.path.exists(lines_dir):
-        os.makedirs(lines_dir)
-    if not os.path.exists(PROCESSED_FLOPS_DIR):
-        os.makedirs(PROCESSED_FLOPS_DIR)
-    return flop_dir, output_dir, helpers_dir, lines_dir
+    helpers_dir = os.path.join(path_app,'temp')+'\\'
+    output_dir = WATCH_DIR
+    lines_dir = os.path.join(path_app, 'lines') + '\\'
+    for dir in [helpers_dir, output_dir, lines_dir, PROCESSED_FLOPS_DIR]:
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+    return output_dir, helpers_dir, lines_dir
 
 if __name__ == "__main__":
     PATH_APP = os.path.abspath(os.path.dirname(sys.argv[0]))

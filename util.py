@@ -4,7 +4,7 @@ import os
 import time
 import psutil
 import sys
-from config import *
+from config_maker import *
 
 def kill_all_processes(process):
     for proc in psutil.process_iter():
@@ -152,10 +152,10 @@ def get_keys(lines):
                     keys.append(new_key)
     return keys
 
-def get_keys_from_file(flop,linefile,cards=get_pokercards()):
+def get_keys_from_file(flop,lines_dir,cards=get_pokercards()):
     all_keys = list()
     #retrieve keys from line file
-    keys_without_cards = get_keys_without_cards(linefile)
+    keys_without_cards = get_keys_without_cards(flop.settings.LINEFILE,lines_dir)
 
     for key in keys_without_cards:
         # add turn and river card in correct positions
@@ -262,8 +262,9 @@ def get_actions_and_end_of_file(file):
             already_detected = 1
     return actions, end_of_file_index
 
-def get_keys_without_cards(file):
+def get_keys_without_cards(filename,lines_dir):
     lines = list()
+    file = lines_dir + filename
     with open(file, 'r') as f:
         for v_line in f:
             if v_line.startswith('r:0'):
