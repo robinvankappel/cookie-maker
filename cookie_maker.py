@@ -2,7 +2,7 @@ __author__ = 'Robin'
 
 import util
 import shutil
-import os, sys
+import sys
 sys.path.append('D:\cookie')
 import itertools
 import time
@@ -41,7 +41,7 @@ def cookie_maker(path_app):
     for flop in flops:
         flop_start_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
         print util.getTime(flop) + 'flop: ' + str(flop.flop) + ', type: ' + flop.type + ', stack size: ' + str(flop.stacksize)
-        log_flops(flop, watchers.dir, flop_start_time)
+        log_flops(flop, LOG_FILE, flop_start_time)
 
         # save original flop location
         flop_path_original = flop.path
@@ -108,13 +108,16 @@ def cookie_maker(path_app):
 
         print util.getTime(flop) + 'add flop to log'
         #save in log file which flops are solved
-        log_flops(flop, watchers.dir, flop_end_time, keys=keys, avg_length=avg_length, finished=1)
+        log_flops(flop, LOG_FILE, flop_end_time, outputs=len(pio_outputs), keys=keys, avg_length=avg_length, max_length=max_length, finished=1)
 
         if MOVE_PROCESSED_FLOPS:
             print util.getTime(flop) + 'move processed flop'
             #move processed flop to different folder:
             path,file = os.path.split(flop_path_original)
-            os.rename(flop_path_original, os.path.join(PROCESSED_FLOPS_DIR,file))
+            try:
+                os.rename(flop_path_original, os.path.join(PROCESSED_FLOPS_DIR,file))
+            except:
+                print util.getTime(flop) + 'ERROR: could not move flop as it already exist in destination folder'
     return 0
 
 
@@ -201,11 +204,10 @@ def copy_flop(flop,temp_flop_dir):
     print util.getTime(flop) + 'finished copying'
     return new_flop_path
 
-def log_flops(flop, output_dir, time, keys=None, avg_length=None, finished=False):
-    log_file = os.path.join(output_dir,LOG_NAME)
+def log_flops(flop, log_file, time, outputs=None,keys=None, avg_length=None, max_length=None, finished=False):
     with open(log_file, 'a+') as f:
         if finished:
-            content = 'FINISHED flop: ' + flop.flop + ', ' + str(flop.stacksize) + 'BB' + ', ' + flop.type + ' (' + time + ', ' + str(len(keys)) + ' keys, avg key length = ' + str(avg_length) + ')' + '\n'
+            content = 'FINISHED flop: ' + flop.flop + ', ' + str(flop.stacksize) + 'BB' + ', ' + flop.type + ' (' + time + ', ' + str(outputs) + 'files, ' + str(len(keys)) + ' keys, avg key length = ' + str(avg_length) + ', max key length = ' + str(max_length) + ')' + '\n'
         else:
             content = 'STARTING flop: ' + flop.flop + ', ' + str(flop.stacksize) + 'BB' + ', ' + flop.type + ' (' +  time + ', flop.STEP_SIZE = ' + str(flop.settings.STEP_SIZE) + ')' + '\n'
         f.write(content)

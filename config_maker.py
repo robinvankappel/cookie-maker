@@ -2,8 +2,6 @@ import sys
 sys.path.append('D:\cookie')
 from config_cookie import *
 
-##### LOG PARAMETERS #####
-LOG_NAME = 'solved-flops.log'
 #____________________________
 
 ##### SETTINGS FOR SOLVING #####
