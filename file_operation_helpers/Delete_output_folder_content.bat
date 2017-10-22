@@ -1,4 +1,4 @@
-SET dir=D:\db-filler\generated_scripts\OUTPUT_results\
+SET dir=D:\cookie\cookies\
 cd "%dir%A"
 del *.* /Q
 cd "%dir%B"

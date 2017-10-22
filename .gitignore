@@ -3,16 +3,6 @@
 
 .idea/
 *.pyc
+temp/
 
-#config_paths.py
-
-# all input flops and scripts #
-############
-
-generated_scripts/
-
-!generated_scripts/solved-flops.log
-
-
-# OUTPUT FILES #
-######################
+#config_maker.py

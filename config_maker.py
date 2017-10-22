@@ -1,5 +1,7 @@
-import sys
-sys.path.append('D:\cookie')
+import sys, os.path
+cwd = os.path.dirname(__file__)
+parentcwd = os.path.abspath(os.path.join(cwd, os.pardir))
+sys.path.append(parentcwd)
 from config_cookie import *
 
 #____________________________

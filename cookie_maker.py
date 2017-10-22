@@ -2,13 +2,13 @@ __author__ = 'Robin'
 
 import util
 import shutil
-import sys
-sys.path.append('D:\cookie')
+#import sys
+#sys.path.append('D:\cookie')
 import itertools
 import time
 import subprocess
 from config_maker import *
-from config_cookie import *
+#from config_cookie import *
 
 
 """
