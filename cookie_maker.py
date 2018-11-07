@@ -1,4 +1,4 @@
-__author__ = 'Robin'
+__author__ = 'RvK'
 
 import util
 import shutil
